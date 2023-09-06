@@ -6,7 +6,6 @@ import * as MuiIcons from '@mui/icons-material';
 
 export default function App() {
 
-  // переменные и состояния
   const [workType, setTypeOfWork] = React.useState('');
   const [isBlocked, setIsBlocked] = React.useState(false);
   const [project, setProject] = React.useState('');
