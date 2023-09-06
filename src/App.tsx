@@ -46,17 +46,17 @@ export default function App() {
     }
 
   const GetInitData = useCallback(async () => {
-    // const initData = await axios.get<PostTaskEntity>(`https://mongodbforallbots.element-it.ru/Task/GetInitData/?chatId=${chat_Id}`);
-    const initData =
-    {
-      data:
-      {
-        fio: "asdsada",
-        taskName: "fasdsaf",
-        taskDescription: "dassadas",
-        startTime: "2023-09-05T13:51:52.242Z",
-      }
-    }
+    const initData = await axios.get<PostTaskEntity>(`https://afc5-89-250-212-72.ngrok.io/Task/GetInitData/?chatId=${chat_Id}`);
+    // const initData =
+    // {
+    //   data:
+    //   {
+    //     fio: "asdsada",
+    //     taskName: "fasdsaf",
+    //     taskDescription: "dassadas",
+    //     startTime: "2023-09-05T13:51:52.242Z",
+    //   }
+    // }
     if (!initData.data.fio) {
       setIsBlocked(true);
     }
@@ -106,7 +106,7 @@ export default function App() {
 
       const now = new Date()
       setStart({ text: "stop" });
-      axios.post("https://mongodbforallbots.element-it.ru/Task/StartButtonPost", userData).then((response) => {
+      axios.post("https://afc5-89-250-212-72.ngrok.io/Task/StartButtonPost", userData).then((response) => {
       });
       setIsCounting(true);
     }
@@ -117,7 +117,7 @@ export default function App() {
       setProject("")
       setTypeOfWork("")
       setTimeLeft(0)
-      axios.post(`https://mongodbforallbots.element-it.ru/Task/StopButtonPost?chatId=${chat_Id}`).then((response) => {
+      axios.post(`https://afc5-89-250-212-72.ngrok.io/Task/StopButtonPost?chatId=${chat_Id}`).then((response) => {
       });
     }
   };
