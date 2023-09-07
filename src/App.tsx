@@ -6,8 +6,10 @@ import * as MuiIcons from '@mui/icons-material';
 
 export default function App() {
 
+  // переменные и состояния
   const [workType, setTypeOfWork] = React.useState('');
-  const [isBlocked, setIsBlocked] = React.useState(false);
+  const [isBlockedFIO, setIsBlockedFIO] = React.useState(false);
+  const [isBlocedCoords, setIsBlocedCoords] = React.useState(true);
   const [project, setProject] = React.useState('');
   const [Start, setStart] = useState({ text: "start" });
   const [coords, setCoords] = useState({
@@ -29,12 +31,33 @@ export default function App() {
   const [isCounting, setIsCounting] = useState(false)
   const telegramData = (window as any).Telegram.WebApp
   const chat_Id = telegramData?.initDataUnsafe?.user?.id;
+  // const chat_Id = 1045906995;
 
   const userData = {
     ChatId: chat_Id,  // сделать аунтификацию в телеграмм
     Name: project,
-    Description: workType
+    Description: workType,
+    Coordinates: coords
   }
+
+  const checkCondition = async (): Promise<boolean> => {
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+
+      const updatedCoords = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      };
+
+      setCoords(updatedCoords);
+      return false;
+    } catch (error) {
+      console.error("Ошибка получения координат GPS:", error);
+      return true;
+    }
+  };
 
   type PostTaskEntity =
     {
@@ -45,19 +68,10 @@ export default function App() {
     }
 
   const GetInitData = useCallback(async () => {
-    const initData = await axios.get<PostTaskEntity>(`https://afc5-89-250-212-72.ngrok.io/Task/GetInitData/?chatId=${chat_Id}`);
-    // const initData =
-    // {
-    //   data:
-    //   {
-    //     fio: "asdsada",
-    //     taskName: "fasdsaf",
-    //     taskDescription: "dassadas",
-    //     startTime: "2023-09-05T13:51:52.242Z",
-    //   }
-    // }
+    const initData = await axios.post<PostTaskEntity>(`https://942d-89-250-212-72.ngrok-free.app/Task/GetInitData/?chatId=${chat_Id}`);
+    console.log(initData.data);
     if (!initData.data.fio) {
-      setIsBlocked(true);
+      setIsBlockedFIO(true);
     }
     if (!!initData.data.taskDescription) {
       setTypeOfWork(initData.data.taskDescription)
@@ -74,8 +88,17 @@ export default function App() {
 
   useEffect(() => {
     GetInitData();
-    GetCoords();
+    checkGPS();
   }, [GetInitData]);
+
+  async function checkGPS() {
+    if (await checkCondition()) {
+      setIsBlocedCoords(true);
+    } else {
+      setIsBlocedCoords(false);
+    }
+  }
+
 
   useEffect(() => {
     setTypeOfWork("Электромонтажные работы");
@@ -90,22 +113,11 @@ export default function App() {
   }, [isCounting]);
 
   // обработчики
-  const GetCoords = () => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setCoords({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude
-        })
-      }
-    )
-  }
+
   const handleClick = () => {
     if (Start.text === "start") {
-
-      const now = new Date()
       setStart({ text: "stop" });
-      axios.post("https://afc5-89-250-212-72.ngrok.io/Task/StartButtonPost", userData).then((response) => {
+      axios.post("https://942d-89-250-212-72.ngrok-free.app/Task/StartButtonPost", userData).then((response) => {
       });
       setIsCounting(true);
     }
@@ -116,13 +128,16 @@ export default function App() {
       setProject("")
       setTypeOfWork("")
       setTimeLeft(0)
-      axios.post(`https://afc5-89-250-212-72.ngrok.io/Task/StopButtonPost?chatId=${chat_Id}`).then((response) => {
+      axios.post("https://942d-89-250-212-72.ngrok-free.app/Task/StopButtonPost", userData).then((response) => {
       });
     }
   };
 
-  if (isBlocked) {
+  if (isBlockedFIO) {
     return <span>Вы не указали контактные данные. Пожалуйста, вернитесь в бот и укажите ФИО</span>
+  }
+  if (isBlocedCoords) {
+    return <span>Вы не дали доступ к геолокации. Пожалуйста, перезайдите в трекер и дайте доступ к геоданным</span>
   }
 
   return (
@@ -160,7 +175,6 @@ export default function App() {
           <MuiIcons.StopCircle sx={{ width: 200, height: 200, }} color="error" />
         }
       </Mui.IconButton>
-      <span>{coords.latitude}/{coords.longitude}</span>
     </div>
   );
 }
