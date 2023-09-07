@@ -20,13 +20,11 @@ export default function App() {
 
   const isDisabled = React.useMemo(() => !workType || !project, [workType, project])
 
-
   const getPadTime = (time: any) => time.toString().padStart(2, "0")
 
   const hours = getPadTime(Math.floor(timeleft / 3600))
   const minutes = getPadTime(Math.floor((timeleft - hours * 3600) / 60));
   const seconds = getPadTime(Math.floor((timeleft - minutes * 60 - hours * 3600)));
-
 
   const [isCounting, setIsCounting] = useState(false)
   const telegramData = (window as any).Telegram.WebApp
@@ -39,6 +37,24 @@ export default function App() {
     Description: workType,
     Coordinates: coords
   }
+
+  // let intervalId: NodeJS.Timeout;
+
+  // // function startTimer() {
+  // intervalId = setTimeout(async () => {
+  //   if (await checkCondition()) {
+  //     setIsBlocedCoords(true);
+  //   } else {
+  //     setIsBlocedCoords(false);
+  //     // stopTimer();
+  //   }
+  // }, 1000);
+  // clearTimeout(intervalId);
+  // }
+
+  // function stopTimer() {
+  //   clearInterval(intervalId);
+  // }
 
   const checkCondition = async (): Promise<boolean> => {
     try {
@@ -66,9 +82,9 @@ export default function App() {
       taskDescription: string,
       startTime: string,
     }
-  ////////saddasdas
+
   const GetInitData = useCallback(async () => {
-    const initData = await axios.post<PostTaskEntity>(`https://942d-89-250-212-72.ngrok-free.app/Task/GetInitData/?chatId=${chat_Id}`);
+    const initData = await axios.get<PostTaskEntity>(`https://942d-89-250-212-72.ngrok-free.app/Task/GetInitData/?chatId=${chat_Id}`);
     console.log(initData.data);
     if (!initData.data.fio) {
       setIsBlockedFIO(true);
@@ -98,7 +114,6 @@ export default function App() {
       setIsBlocedCoords(false);
     }
   }
-
 
   useEffect(() => {
     setTypeOfWork("Электромонтажные работы");
@@ -178,3 +193,4 @@ export default function App() {
     </div>
   );
 }
+
