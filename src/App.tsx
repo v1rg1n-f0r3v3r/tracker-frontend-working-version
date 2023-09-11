@@ -82,7 +82,7 @@ export default function App() {
       setStart({ text: "stop" });
     }
   }, []);
-
+  /// hello faadadaa
   useEffect(() => {
     GetInitData();
     checkGPS();
