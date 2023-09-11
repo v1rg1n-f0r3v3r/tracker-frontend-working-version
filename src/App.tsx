@@ -38,24 +38,6 @@ export default function App() {
     Coordinates: coords
   }
 
-  // let intervalId: NodeJS.Timeout;
-
-  // // function startTimer() {
-  // intervalId = setTimeout(async () => {
-  //   if (await checkCondition()) {
-  //     setIsBlocedCoords(true);
-  //   } else {
-  //     setIsBlocedCoords(false);
-  //     // stopTimer();
-  //   }
-  // }, 1000);
-  // clearTimeout(intervalId);
-  // }
-
-  // function stopTimer() {
-  //   clearInterval(intervalId);
-  // }
-
   const checkCondition = async (): Promise<boolean> => {
     try {
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -84,8 +66,7 @@ export default function App() {
     }
 
   const GetInitData = useCallback(async () => {
-    const initData = await axios.get<PostTaskEntity>(`https://942d-89-250-212-72.ngrok-free.app/Task/GetInitData/?chatId=${chat_Id}`);
-    console.log(initData.data);
+    const initData = await axios.get<PostTaskEntity>(`https://stagebot.element-it.ru/Task/GetInitData/?chatId=${chat_Id}`);
     if (!initData.data.fio) {
       setIsBlockedFIO(true);
     }
@@ -105,6 +86,7 @@ export default function App() {
   useEffect(() => {
     GetInitData();
     checkGPS();
+    checkInternetConnection()
   }, [GetInitData]);
 
   async function checkGPS() {
@@ -127,23 +109,35 @@ export default function App() {
     }
   }, [isCounting]);
 
+  function checkInternetConnection() {
+    if (navigator.onLine) {
+      console.log("Online")
+      return true;
+    }
+    console.log("Offline")
+    return false;
+  }
+
+
   // обработчики
 
   const handleClick = () => {
     if (Start.text === "start") {
       setStart({ text: "stop" });
-      axios.post("https://942d-89-250-212-72.ngrok-free.app/Task/StartButtonPost", userData).then((response) => {
+      axios.post("https://stagebot.element-it.ru/Task/StartButtonPost", userData).then((response) => {
       });
       setIsCounting(true);
+      // checkInternetConnection();
     }
 
     else {
       setStart({ text: "start" });
-      setIsCounting(false)
-      setProject("")
-      setTypeOfWork("")
-      setTimeLeft(0)
-      axios.post("https://942d-89-250-212-72.ngrok-free.app/Task/StopButtonPost", userData).then((response) => {
+      // checkInternetConnection();
+      setIsCounting(false);
+      setProject("");
+      setTypeOfWork("");
+      setTimeLeft(0);
+      axios.post("https://stagebot.element-it.ru/Task/StopButtonPost", userData).then((response) => {
       });
     }
   };
