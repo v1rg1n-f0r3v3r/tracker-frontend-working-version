@@ -118,9 +118,6 @@ export default function App() {
     return false;
   }
 
-
-  // обработчики
-
   const handleClick = () => {
     if (Start.text === "start") {
       setStart({ text: "stop" });
